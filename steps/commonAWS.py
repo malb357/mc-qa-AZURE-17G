@@ -6,24 +6,74 @@ import requests
 from botocore.exceptions import ClientError
 import json
 import logging
-from datetime import date
+from datetime import date, timedelta
 
 
 def get_today_summary_file_name(context):
-    today = date.today()
+    # today = date.today()
     # Check the S3 bucket has billing files from the current day
     s3 = boto3.resource('s3')
     bucket = s3.Bucket(context.env_vars['billingBucketName'])
     summary_today_file_found = False
 
+    today = date.today()
+    first = today.replace(day=1)
+    last_month = first - timedelta(days=1)
+    second = last_month.replace(day=1)
+    last_two_month = second - timedelta(days=1)
+
+    if today.strftime("%m") == "1" and int(today.strftime("%d")) < 9:
+        year = last_two_month.strftime("%Y")
+    else:
+        year = last_month.strftime("%Y")
+    if int(today.strftime("%d")) < 9:
+        month = last_two_month.strftime("%m")
+        month_1 = last_month.strftime("%m")
+    else:
+        month = last_month.strftime("%m")
+        month_1 = today.strftime("%m")
+
+    print("billed/summary/{}-{}/{}{}{}".format(year, month, context.env_vars['prefixBillingSummaryFileName'], year, last_month.strftime("%m")))
     for obj in bucket.objects.all():
-        if (context.env_vars['prefixBillingSummaryFileName'] + today.strftime("%Y%m%d")) in obj.key:
+        if ("billed/summary/{}-{}/{}{}{}".format(year, month, context.env_vars['prefixBillingSummaryFileName'], year, month_1)) in obj.key:
             summary_today_file_found = True
             return obj.key
 
     if not summary_today_file_found:
         context.testcase.assertTrue(summary_today_file_found, msg='Billing files from today NOT FOUND')
 
+def get_today_detail_file_name(context):
+    # today = date.today()
+    # Check the S3 bucket has billing files from the current day
+    s3 = boto3.resource('s3')
+    bucket = s3.Bucket(context.env_vars['billingBucketName'])
+    detail_today_file_found = False
+
+    today = date.today()
+    first = today.replace(day=1)
+    last_month = first - timedelta(days=1)
+    second = last_month.replace(day=1)
+    last_two_month = second - timedelta(days=1)
+
+    if today.strftime("%m") == "1" and int(today.strftime("%d")) < 9:
+        year = last_two_month.strftime("%Y")
+    else:
+        year = last_month.strftime("%Y")
+    if int(today.strftime("%d")) < 9:
+        month = last_two_month.strftime("%m")
+        month_1 = last_month.strftime("%m")
+    else:
+        month = last_month.strftime("%m")
+        month_1 = today.strftime("%m")
+
+    print("billed/detail/{}-{}/{}{}{}".format(year, month, context.env_vars['prefixBillingDetailFileName'], year, last_month.strftime("%m")))
+    for obj in bucket.objects.all():
+        if ("billed/detail/{}-{}/{}{}{}".format(year, month, context.env_vars['prefixBillingDetailFileName'], year, month_1)) in obj.key:
+            detail_today_file_found = True
+            return obj.key
+
+    if not detail_today_file_found:
+        context.testcase.assertTrue(detail_today_file_found, msg='Billing files from today NOT FOUND')
 
 def get_today_detail_file_name(context):
     today = date.today()
