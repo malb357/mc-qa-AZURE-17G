@@ -1,0 +1,10 @@
+toolium
+behave         # behave tests
+behave-pytest  # pytest assertions in behave tests
+#allure-behave
+#allure-python-commons
+boto3          # aws sdk
+requests-aws4auth
+aws-requests-auth
+pyyaml
+
