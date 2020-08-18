@@ -7,6 +7,8 @@ Feature: GenerateBilling detail file generation
     When generateBilling is executed with boto
     Then the answer to the lambda generateBilling is OK
     And today detail file is downloaded
+    And consumption file is downloaded
+    And charge value is correct
     And the lastAWSInvoiceDate and BillingFileDate from DynamoDB is updated with the last billing info
 
   Scenario: Success - Remove optional items
