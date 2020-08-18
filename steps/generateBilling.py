@@ -7,11 +7,12 @@ from aws_requests_auth.boto_utils import BotoAWSRequestsAuth
 import logging
 import time
 import csv
-from steps.commonAWS import get_today_summary_file_name, get_today_detail_file_name, get_today_client_file_name
+from steps.commonAWS import get_today_summary_file_name, get_today_detail_file_name, get_today_client_file_name, get_consumption_file_name
 import shutil
 from datetime import date, timedelta
 import os
 import gzip
+import csv
 
 
 @when('generateBilling is executed with boto')
@@ -20,7 +21,7 @@ def step_impl(context):
     auth = BotoAWSRequestsAuth(aws_host=context.env_vars['awsApiHost'],
                                aws_region=context.env_vars['region'],
                                aws_service='execute-api')
-    params = {'force': 'true', 'offset': '1'}
+    params = {'force': 'true', 'offset': '1', 'regenerateWithCorrections': 'true'}
     context.generate_billing_response = requests.get(context.env_vars['generateBillingURL'], auth=auth, params=params, timeout=30)
     # If timeout we have to wait until the lambda
     status_code_gateway_timeout = 504
@@ -94,17 +95,17 @@ def step_impl(context):
 def step_impl(context):
     # Download the csv summary files
     expected_set = set(context.env_vars["csvDetailHeaders"])
-    csv = "{}/{}".format(context.full_local_billing_files_path, context.summary_file_name.split("/")[3])
+    csv = "{}/{}".format(context.full_local_billing_files_path, context.detail_file_name.split("/")[3])
     print(csv)
     first_line = None
-    with gzip.open(csv, 'rb') as csv_zip:
-        with open(csv_zip, "r") as csv_file:
-            first_line = csv_file.readline()
+    with gzip.open(csv, 'rt', encoding='utf8') as csv_zip:
+        first_line = csv_zip.readline()
     first_line_set = set(first_line.replace("\n","").split(","))
-    # print(first_line)
+    print("First line set: {}".format(first_line_set))
+    print("expected set: {}".format(expected_set))
     # print(first_line.split(","))
     # print(context.env_vars["csvSummaryHeaders"])
-    # print(expected_set.difference(first_line_set))
+    print("DIFERENCIA: {}".format(expected_set.difference(first_line_set)))
     assert expected_set.difference(first_line_set) == set()
 
 @then('today summary file is downloaded')
@@ -135,6 +136,20 @@ def step_impl(context):
     # print("{}/{}".format(context.full_local_billing_files_path, csv_file_name))
     shutil.move(csv_file_name, "{}/{}".format(context.full_local_billing_files_path, csv_file_name))
 
+@then('consumption file is downloaded')
+def step_impl(context):
+    s3 = boto3.client('s3')
+    # Download the csv detail files
+    context.consumption_file_name = get_consumption_file_name(context)
+    # print(context.detail_file_name)
+    # print(context.detail_file_name.split("/")[3])
+    csv_file_name = context.consumption_file_name.split("/")[2]
+    s3.download_file(context.env_vars['billingBucketName'], context.consumption_file_name, csv_file_name)
+    # Move the csv to the billingFiles folder
+    # print("{}".format(csv_file_name))
+    # print("{}/{}".format(context.full_local_billing_files_path, csv_file_name))
+    shutil.move(csv_file_name, "{}/{}".format(context.full_local_billing_files_path, csv_file_name))
+
 @then('the answer to the lambda generateBilling is OK')
 def step_impl(context):
     # Check response to generateBilling (if timeout give a warning)
@@ -146,6 +161,33 @@ def step_impl(context):
         context.testcase.assertEquals(context.generate_billing_response.status_code, status_code,
                                       msg="Status code invalid. Obtained {} instead of {}".format(
                                           context.generate_billing_response.status_code, status_code))
+
+
+@then('charge value is correct')
+def step_impl(context):
+    detail_file_name = "{}/{}".format(context.full_local_billing_files_path, context.detail_file_name.split("/")[3])
+    consumption_file_name = "{}/{}".format(context.full_local_billing_files_path, context.consumption_file_name.split("/")[2])
+    print(detail_file_name)
+    print(consumption_file_name)
+    with gzip.open(detail_file_name, 'rt', encoding='utf8') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            if row['chargeType'] == "azure_consumption" and float(row['charge']) > 0:
+                quantity_detail = round(float(row['quantity']), 2)
+                charge_detail_file = round(float(row['charge']), 2)
+                resourceId_detail = row['resourceId']
+                productId, skuId, _ = resourceId_detail.split("-")
+                break
+
+    with open(consumption_file_name, newline='') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            if row['ProductId'] == productId and row['SkuId'] == skuId:
+                unit_price = round(float(row['UnitPrice']), 2)
+                break
+    context.testcase.assertEquals(round(unit_price*quantity_detail, 2), charge_detail_file,  msg="Charge is not ok. Obtained {} instead of {}".format(round(unit_price*quantity_detail, 2), charge_detail_file))
+     
+
 
 @then('the lastAWSInvoiceDate and BillingFileDate from DynamoDB is updated with the last billing info')
 def step_impl(context):

@@ -1,0 +1,39 @@
+qa:
+    dynamoDbName: TBC
+    dynamoDBPrimaryKey : {'stage': 'Prod'}
+    generateBillingURL:
+    billingBucketName: prebilling-aws-qa-mc
+    prefixBillingSummaryFileName: aws_summary_MC_
+    prefixBillingClientFileName: aws_client_MC_
+    prefixBillingDetailFileName: aws_detail_MC_
+    generateBillingTimeoutSleep: 60
+    LocalBillingFiles: /billingFiles/
+    csvSummaryHeaders: ['ob', 'mpa', 'accountIdCsb', 'subscriptionIdCsb', 'accountId', 'accountName', 'currency', 'exchangeRate', 'priceFactor', 'rebateFactor', 'charge', 'chargeVendor', 'rebateVendor', 'invoiceDate', 'chargeRef', 'chargeVendorRef', 'margin', 'rebateVendorRef', 'currencyRef']
+    csvClientHeaders: ['chargeType', 'region', 'service', 'resourceName', 'resourceId', 'price', 'quantity', 'unit', 'charge', 'currency', 'startDate', 'endDate', 'invoiceDate']
+    csvDetailHeaders: ['ob', 'mpa', 'accountIdCsb', 'subscriptionIdCsb', 'accountId', 'chargeType', 'region', 'service', 'resourceName', 'resourceId', 'price', 'quantity', 'unit', 'charge', 'currency', 'startDate', 'endDate', 'invoiceDate', 'priceRef', 'chargeRef', 'currencyRef', 'reservationStartTime', 'reservationEndTime', 'reservationTotalReservedUnits', 'reservationUnusedQuantity']
+    adminAccessKey:
+    adminSecretKey:
+    region: us-east-2
+    awsApiHost:
+    csbAccessKey:
+    csbSecretKey:
+
+dev:
+    dynamoDbName: mc-azure-plan-INT-AR-azureDataTable-1WXYBXFDNG11I
+    dynamoDBPrimaryKey : { 'configId': 'current'}
+    generateBillingURL: https://gvqzlmv99i.execute-api.us-east-2.amazonaws.com/Prod/generateBilling
+    billingBucketName: prebilling-azure-plan-int-ar
+    prefixBillingSummaryFileName: azure_summary_AR_
+    prefixBillingDetailFileName: azure_detail_AR_
+    consumptionFileName: AR_azure_consumption
+    generateBillingTimeoutSleep: 1
+    LocalBillingFiles: /billingFiles/
+   #csvSummaryHeaders: ['ob', 'mpa', 'accountIdCsb', 'subscriptionIdCsb', 'accountId', 'accountName', 'currency', 'exchangeRate', 'priceFactor', 'rebateFactor', 'charge', 'chargeVendor', 'rebateVendor', 'invoiceDate', 'chargeRef', 'chargeVendorRef', 'margin', 'rebateVendorRef', 'currencyRef']
+    csvSummaryHeaders: ['ob', 'accountIdCsb', 'subscriptionIdCsb', 'customerId', 'subscriptionId', 'customerName', 'domain', 'currency', 'priceFactor', 'priceFactorRI', 'priceFactorSW', 'priceFactorMP', 'charge', 'chargeVendor', 'invoiceDate', 'chargeRef', 'chargeVendorRef', 'margin', 'currencyRef', 'exchangeRate']
+    csvDetailHeaders: ['ob', 'accountIdCsb', 'subscriptionIdCsb', 'accountId', 'chargeType', 'region', 'service', 'resourceName', 'resourceId', 'price', 'quantity', 'unit', 'charge', 'currency', 'startDate', 'endDate', 'invoiceDate', 'priceRef', 'chargeRef', 'currencyRef', 'reservationStartTime', 'reservationEndTime', 'reservationTotalReservedUnits', 'reservationUnusedQuantity']
+    adminAccessKey: 
+    adminSecretKey:
+    region: us-east-2
+    awsApiHost: gvqzlmv99i.execute-api.us-east-2.amazonaws.com
+    csbAccessKey:
+    csbSecretKey:

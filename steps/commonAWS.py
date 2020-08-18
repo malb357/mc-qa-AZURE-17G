@@ -75,19 +75,19 @@ def get_today_detail_file_name(context):
     if not detail_today_file_found:
         context.testcase.assertTrue(detail_today_file_found, msg='Billing files from today NOT FOUND')
 
-def get_today_detail_file_name(context):
+def get_consumption_file_name(context):
     today = date.today()
     s3 = boto3.resource('s3')
     bucket = s3.Bucket(context.env_vars['billingBucketName'])
-    detail_today_file_found = False
+    client_today_file_found = False
 
     for obj in bucket.objects.all():
-        if (context.env_vars['prefixBillingDetailFileName'] in obj.key) and (today.strftime("%Y%m%d") in obj.key):
-            detail_today_file_found = True
+        if (context.env_vars['consumptionFileName'] in obj.key) and (today.strftime("%Y-%m") in obj.key):
+            client_today_file_found = True
             return obj.key
 
-    if not detail_today_file_found:
-        context.testcase.assertTrue(detail_today_file_found, msg='Detail billing files from today NOT FOUND')
+    if not client_today_file_found:
+        context.testcase.assertTrue(client_today_file_found, msg='Consumption file from billing month NOT FOUND')
 
 
 def get_today_client_file_name(context):
@@ -103,6 +103,7 @@ def get_today_client_file_name(context):
 
     if not client_today_file_found:
         context.testcase.assertTrue(client_today_file_found, msg='Client billing files from today NOT FOUND')
+
 
 
 @then('The status code is "{status_code}"')
