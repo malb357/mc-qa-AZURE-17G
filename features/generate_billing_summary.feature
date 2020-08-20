@@ -7,6 +7,9 @@ Feature: GenerateBilling summary file generation
     When generateBilling is executed with boto
     Then the answer to the lambda generateBilling is OK
     And today summary file is downloaded
+    And today detail file is downloaded
+    And consumption file is downloaded
+    And charge summary value is correct
     And the lastAWSInvoiceDate and BillingFileDate from DynamoDB is updated with the last billing info
 
   Scenario: Success - Remove optional items
