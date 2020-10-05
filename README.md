@@ -8,47 +8,52 @@ It's a behavior-driven development (BDD), Python style. For more detail about BD
 
 ----
 
+## Getting Started
 
-Getting Started
----------------
-This project was started from `Toolium <https://github.com/Telefonica/toolium>`_. 
+This project was started from `Toolium <https://github.com/Telefonica/toolium>`
 
-The requirements to install Toolium are `Python 2.7 or 3.3+ <http://www.python.org>`_ and
-`pip <https://pypi.python.org/pypi/pip>`_. If you use Python 2.7.9+, you don't need to install pip separately.
+The requirements to install Toolium are [Python 2.7 or 3.3+](http://www.python.org) and
+[pip](https://pypi.python.org/pypi/pip). If you use Python 2.7.9+, you don't need to install pip separately.
 
-Clone `mc-qa-azure-17G <git@github.com:Telefonica/mc-qa-azure-17G.git>`_ repository and install requirements. It's
+Clone mc-qa-azure-17G repository and install requirements. It's
 highly recommendable to use a virtualenv.
 
 
-
-    $ git clone git@github.com:Telefonica/mc-qa-azure-17G.git
-    $ cd cd mc-qa-azure-17G
-    $ python -m venv mc-qa-azure-17G-venv
-    $ cd mc-qa-azure-17G-venv/
-    $ source Scripts/activate
-    $ pip install -r requirements.txt
+```bash
+git clone git@github.com:Telefonica/mc-qa-azure-17G.git
+cd mc-qa-azure-17G
+python -m venv mc-qa-azure-17G-venv
+cd mc-qa-azure-17G-venv/
+source Scripts/activate
+pip install -r requirements.txt
+```
 
 It is also required an environment system variable WORKSPACE with the workspace path. For example
 
+```bash
+echo $WORKSPACE
+C:\workspace
+```
 
-    $ echo $WORKSPACE
-    C:\workspace
+## Running Tests
 
-
-Running Tests
--------------
 To run a single test case (scenario):
 
-    $ behave -n "Test case name"
+```bash
+behave -n "Test case name"
+```
     
 To run a feature file:
 
-    $ behave  "name.feature"
+```bash
+behave  "name.feature"
+```
     
 To run multiple feature files:
 
-    $ behave  "feature name 1.feature" "feature name 2.feature"
-    
+```bash
+behave  "feature name 1.feature" "feature name 2.feature"
+```    
 
 
 
