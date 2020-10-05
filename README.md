@@ -19,7 +19,7 @@ The requirements to install Toolium are `Python 2.7 or 3.3+ <http://www.python.o
 Clone `mc-qa-azure-17G <git@github.com:Telefonica/mc-qa-azure-17G.git>`_ repository and install requirements. It's
 highly recommendable to use a virtualenv.
 
-.. code:: console
+
 
     $ git clone git@github.com:Telefonica/mc-qa-azure-17G.git
     $ cd cd mc-qa-azure-17G
@@ -30,7 +30,6 @@ highly recommendable to use a virtualenv.
 
 It is also required an environment system variable WORKSPACE with the workspace path. For example
 
-.. code:: console
 
     $ echo $WORKSPACE
     C:\workspace
@@ -40,19 +39,13 @@ Running Tests
 -------------
 To run a single test case (scenario):
 
-.. code:: console
-
     $ behave -n "Test case name"
     
 To run a feature file:
 
-.. code:: console
-
     $ behave  "name.feature"
     
 To run multiple feature files:
-
-.. code:: console
 
     $ behave  "feature name 1.feature" "feature name 2.feature"
     
