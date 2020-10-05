@@ -22,10 +22,10 @@ highly recommendable to use a virtualenv.
 ```bash
 git clone git@github.com:Telefonica/mc-qa-azure-17G.git
 cd mc-qa-azure-17G
-python -m venv mc-qa-azure-17G-venv
+python3 -m venv mc-qa-azure-17G-venv
 cd mc-qa-azure-17G-venv/
 source Scripts/activate
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 ```
 
 It is also required an environment system variable WORKSPACE with the workspace path. For example
