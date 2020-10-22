@@ -1,0 +1,281 @@
+{
+	"info": {
+		"_postman_id": "1b27614e-4707-44e0-8b75-074a121ec135",
+		"name": "Runner Test Azure Plans",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get Users with AzurePlan Runner",
+			"item": [
+				{
+					"name": "Auth Partnercenter API Billing admin",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "9d388725-47d1-428d-80f3-ab1d9434503b",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "21d2e55d-dc9b-4d47-93d0-fcf37d3dc434",
+								"exec": [
+									"var data = JSON.parse(responseBody);",
+									"tests[\"access token?\"] = responseBody.has(data.access_token);",
+									"tests[data.access_token] = responseBody.has(data.access_token);",
+									"",
+									"postman.setGlobalVariable(\"AUTHENTICATION-TOKEN\", data.access_token);",
+									"",
+									"console.log(\"Authentication token: \", data.access_token);",
+									"console.log(\"for user: \", postman.getGlobalVariable(\"username-billing\"));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "grant_type",
+									"value": "client_credentials",
+									"type": "text"
+								},
+								{
+									"key": "resource",
+									"value": "https://graph.windows.net",
+									"type": "text"
+								},
+								{
+									"key": "client_id",
+									"value": "{{clientid}}",
+									"type": "text"
+								},
+								{
+									"key": "client_secret",
+									"value": "{{clientsecret}}",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "{{password-billing}}",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "username",
+									"value": "{{username-billing}}",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "scope",
+									"value": "openid profile",
+									"type": "text",
+									"disabled": true
+								}
+							],
+							"options": {
+								"formdata": {}
+							}
+						},
+						"url": {
+							"raw": "https://login.windows.net/{{resellermord}}/oauth2/token?api-version=1.0",
+							"protocol": "https",
+							"host": [
+								"login",
+								"windows",
+								"net"
+							],
+							"path": [
+								"{{resellermord}}",
+								"oauth2",
+								"token"
+							],
+							"query": [
+								{
+									"key": "api-version",
+									"value": "1.0"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "17G - Get list of Customers",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "24476124-57e8-46e6-bc5d-f6e0ff345fd2",
+								"exec": [
+									"var jsonData = pm.response.json();\r",
+									"counter=pm.environment.get(\"counter\");\r",
+									"pm.environment.set(\"totalCount\", jsonData.totalCount);\r",
+									"pm.environment.set(\"customer-id\", jsonData.items[counter].id);\r",
+									"pm.environment.set(\"customer-name\", jsonData.items[counter].companyProfile.companyName);\r",
+									"if(counter==0){\r",
+									"    pm.environment.set(\"counter403\",0);\r",
+									"    pm.environment.set(\"usedLicenses\",0);\r",
+									"    console.info(\"Numero total de clientes: \"+ jsonData.totalCount);\r",
+									"    console.info(\"Cuentas con licencias de Azure Plan:\");\r",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "7e77af56-ba7a-4e81-8f40-fc1747ca8d22",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AUTHENTICATION-TOKEN}}"
+							}
+						],
+						"url": {
+							"raw": "https://api.partnercenter.microsoft.com/v1/customers?size=400",
+							"protocol": "https",
+							"host": [
+								"api",
+								"partnercenter",
+								"microsoft",
+								"com"
+							],
+							"path": [
+								"v1",
+								"customers"
+							],
+							"query": [
+								{
+									"key": "size",
+									"value": "400"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "17G - Get a list of subscription of a customer looking for Azure plan",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "28b3dc24-c707-4d91-9ea9-045f1862d50b",
+								"exec": [
+									"var jsonData = pm.response.json();\r",
+									"\r",
+									"try {\r",
+									"    itemsLength = jsonData.items.length;\r",
+									"    for(var i=0;i<itemsLength;i++){\r",
+									"        if(jsonData.items[i].offerName == \"Azure plan\"){\r",
+									"            console.info(pm.environment.get(\"customer-name\")  + \" - \" + pm.environment.get(\"customer-id\") + \" - Tiene Azure Plan\");\r",
+									"            usedLicenses=pm.environment.get(\"usedLicenses\");\r",
+									"            pm.environment.set(\"usedLicenses\", ++usedLicenses);\r",
+									"        }\r",
+									"    }\r",
+									"} catch (error) {\r",
+									"  /*console.info(pm.environment.get(\"customer-name\")  + \" - \" + pm.environment.get(\"customer-id\") + \" - Cuelga del partner\");*/\r",
+									"  counter403=pm.environment.get(\"counter403\");\r",
+									"  pm.environment.set(\"counter403\", ++counter403);\r",
+									"}\r",
+									"    \r",
+									"counter=pm.environment.get(\"counter\");\r",
+									"pm.environment.set(\"counter\", ++counter);\r",
+									"\r",
+									"if(counter<pm.environment.get(\"totalCount\")){\r",
+									"    postman.setNextRequest('17G - Get list of Customers');\r",
+									"}\r",
+									"else\r",
+									"{\r",
+									"    console.info(\"Licencias usadas \" + pm.environment.get(\"usedLicenses\")+ \" de 10\" )\r",
+									"    console.info(\"Usuarios 403 There exists no reseller relationship between the partner and customer = \" + pm.environment.get(\"counter403\"))\r",
+									"    console.info(\"Usuarios con reseller relationship  = \" + (pm.environment.get(\"totalCount\") - pm.environment.get(\"counter403\")))\r",
+									"    pm.environment.set(\"counter\",0);\r",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "6f8a7f31-6aed-4a5d-8082-2ab028255c3f",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{AUTHENTICATION-TOKEN}}"
+							}
+						],
+						"url": {
+							"raw": "https://api.partnercenter.microsoft.com/v1/customers/{{customer-id}}/subscriptions",
+							"protocol": "https",
+							"host": [
+								"api",
+								"partnercenter",
+								"microsoft",
+								"com"
+							],
+							"path": [
+								"v1",
+								"customers",
+								"{{customer-id}}",
+								"subscriptions"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		}
+	],
+	"protocolProfileBehavior": {}
+}

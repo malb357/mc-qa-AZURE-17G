@@ -1,0 +1,16 @@
+
+REQUISITOS
+Cargar las variables de entorno necesarias. Fichero  "MSPC OB Sandbox.postman_environment".
+Imprescindible completar
+--> clientid
+---> clientsecret
+--> resellermord
+
+
+EJECUCIÓN DEL SCRIPT
+Asegurarse que la variable "counter" esta a valor 0.
+Ejecutar el runner de la colección con los valores por defecto.
+
+NOTAS:
+Si tenemos las trazas de tipo "Log" va a ser imposible ver claramente el resultado del script.
+Para ver los resultados del script, abrir la consola de postman y dejar todas las trazas menos las de "Log". 
