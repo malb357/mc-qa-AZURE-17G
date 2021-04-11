@@ -7,7 +7,8 @@ from aws_requests_auth.boto_utils import BotoAWSRequestsAuth
 import logging
 import time
 import csv
-from steps.commonAWS import get_today_summary_file_name, get_today_detail_file_name, get_today_client_file_name, get_consumption_file_name
+from steps.commonAWS import get_today_detail_file_name_empty, get_today_summary_file_name, get_today_subsummary_file_name, get_today_subdetail_file_name, get_today_detail_file_name, get_today_client_file_name, get_consumption_file_name, get_today_summary_file_name_empty, get_today_detail_file_name_empty
+from steps.commonMS import partner_center_authentication, get_invoice_line_items
 import shutil
 from datetime import date, timedelta
 import os
@@ -93,6 +94,72 @@ def step_impl(context):
     if context.generate_billing_response.status_code == status_code_gateway_timeout:
         time.sleep(context.env_vars['generateBillingTimeoutSleep'])
 
+@given('lang value is invalid')
+def step_impl(context):
+    # Execute the lambada with Boto and  
+    auth = BotoAWSRequestsAuth(aws_host=context.env_vars['awsApiHost'],
+                               aws_region=context.env_vars['region'],
+                               aws_service='execute-api')
+    params = {'force': 'true', 'offset': '1'}
+
+    dynamodb = boto3.resource('dynamodb')
+    table = dynamodb.Table(context.env_vars['dynamoDbName'])
+
+    response = table.update_item(
+        Key=context.env_vars['dynamoDBPrimaryKey'],
+        UpdateExpression='set lang=:l',
+        ExpressionAttributeValues={
+            ':l': "abcd"
+        },
+        ReturnValues="UPDATED_NEW"
+    )
+
+    print("Response: {}".format(response))
+
+@given('lang value is ES')
+def step_impl(context):
+    # Execute the lambada with Boto and  
+    auth = BotoAWSRequestsAuth(aws_host=context.env_vars['awsApiHost'],
+                               aws_region=context.env_vars['region'],
+                               aws_service='execute-api')
+    params = {'force': 'true', 'offset': '1'}
+
+    dynamodb = boto3.resource('dynamodb')
+    table = dynamodb.Table(context.env_vars['dynamoDbName'])
+
+    response = table.update_item(
+        Key=context.env_vars['dynamoDBPrimaryKey'],
+        UpdateExpression='set lang=:l',
+        ExpressionAttributeValues={
+            ':l': "es"
+        },
+        ReturnValues="UPDATED_NEW"
+    )
+
+    print("Response: {}".format(response))
+
+@given('lang value is EN')
+def step_impl(context):
+    # Execute the lambada with Boto and  
+    auth = BotoAWSRequestsAuth(aws_host=context.env_vars['awsApiHost'],
+                               aws_region=context.env_vars['region'],
+                               aws_service='execute-api')
+    params = {'force': 'true', 'offset': '1'}
+
+    dynamodb = boto3.resource('dynamodb')
+    table = dynamodb.Table(context.env_vars['dynamoDbName'])
+
+    response = table.update_item(
+        Key=context.env_vars['dynamoDBPrimaryKey'],
+        UpdateExpression='set lang=:l',
+        ExpressionAttributeValues={
+            ':l': "en"
+        },
+        ReturnValues="UPDATED_NEW"
+    )
+
+    print("Response: {}".format(response))
+
 
 @then('today summary, a client and a detail file are downloaded')
 def step_impl(context):
@@ -127,6 +194,39 @@ def step_impl(context):
     # print(first_line)
     # print(first_line.split(","))
     # print(context.env_vars["csvSummaryHeaders"])
+    # print(expected_set.difference(first_line_set))
+    assert expected_set.difference(first_line_set) == set()
+
+@then('subsummary file header were correctly generated')
+def step_impl(context):
+    # Download the csv subsummary files
+    expected_set = set(context.env_vars["csvSubSummaryHeaders"])
+    csv = "{}/{}".format(context.full_local_billing_files_path, context.subsummary_file_name.split("/")[3])
+    print(csv)
+    first_line = None
+    with open(csv, "r") as csv_file:
+        first_line = csv_file.readline()
+    first_line_set = set(first_line.replace("\n","").split(","))
+    # print(first_line)
+    # print(first_line.split(","))
+    # print(context.env_vars["csvSubSummaryHeaders"])
+    # print(expected_set.difference(first_line_set))
+    assert expected_set.difference(first_line_set) == set()
+
+@then('subdetail file header were correctly generated')
+def step_impl(context):
+    # Download the csv subdetail files
+    expected_set = set(context.env_vars["csvSubDetailHeaders"])
+    csv = "{}/{}".format(context.full_local_billing_files_path, context.subdetail_file_name.split("/")[3])
+    print(csv)
+    
+    first_line = None
+    with gzip.open(csv, 'rt', encoding='utf8') as csv_zip:
+        first_line = csv_zip.readline()
+    first_line_set = set(first_line.replace("\n","").split(","))
+    # print(first_line)
+    # print(first_line.split(","))
+    # print(context.env_vars["csvSubDetailHeaders"])
     # print(expected_set.difference(first_line_set))
     assert expected_set.difference(first_line_set) == set()
 
@@ -209,6 +309,41 @@ def step_impl(context):
     # print("{}/{}".format(context.full_local_billing_files_path, csv_file_name))
     shutil.move(csv_file_name, "{}/{}".format(context.full_local_billing_files_path, csv_file_name))
 
+@then('today subsummary file is downloaded')
+def step_impl(context):
+    s3 = boto3.client('s3')
+    # Download the csv summary files
+    context.subsummary_file_name = get_today_subsummary_file_name(context)
+    # print(context.summary_file_name)
+    # print(context.summary_file_name.split("/")[3])
+    csv_file_name = context.subsummary_file_name.split("/")[3]
+    s3.download_file(context.env_vars['billingBucketName'], context.subsummary_file_name, csv_file_name)
+    # Move the csv to the billingFiles folder
+    # print("{}".format(csv_file_name))
+    # print("{}/{}".format(context.full_local_billing_files_path, csv_file_name))
+    shutil.move(csv_file_name, "{}/{}".format(context.full_local_billing_files_path, csv_file_name))
+
+@then('today subdetail file is downloaded')
+def step_impl(context):
+    s3 = boto3.client('s3')
+    # Download the csv summary files
+    context.subdetail_file_name = get_today_subdetail_file_name(context)
+    # print(context.summary_file_name)
+    # print(context.summary_file_name.split("/")[3])
+    csv_file_name = context.subdetail_file_name.split("/")[3]
+    s3.download_file(context.env_vars['billingBucketName'], context.subdetail_file_name, csv_file_name)
+    # Move the csv to the billingFiles folder
+    # print("{}".format(csv_file_name))
+    # print("{}/{}".format(context.full_local_billing_files_path, csv_file_name))
+    shutil.move(csv_file_name, "{}/{}".format(context.full_local_billing_files_path, csv_file_name))
+
+@then('today summary file is not generated')
+def step_impl(context):
+    s3 = boto3.client('s3')
+    # Download the csv summary files
+    context.summary_file_name = get_today_summary_file_name_empty(context)
+
+
 @then('today detail file is downloaded')
 def step_impl(context):
     s3 = boto3.client('s3')
@@ -222,6 +357,13 @@ def step_impl(context):
     # print("{}".format(csv_file_name))
     # print("{}/{}".format(context.full_local_billing_files_path, csv_file_name))
     shutil.move(csv_file_name, "{}/{}".format(context.full_local_billing_files_path, csv_file_name))
+
+@then('today detail file is not generated')
+def step_impl(context):
+    s3 = boto3.client('s3')
+    # Download the csv detail files
+    context.detail_file_name = get_today_detail_file_name_empty(context)
+
 
 @then('today current billing cycle summary file is downloaded')
 def step_impl(context):
@@ -262,6 +404,34 @@ def step_impl(context):
     # print("{}".format(csv_file_name))
     # print("{}/{}".format(context.full_local_billing_files_path, csv_file_name))
     shutil.move(csv_file_name, "{}/{}".format(context.full_local_billing_files_path, csv_file_name))
+
+@then('ms invoice file is downloaded')
+def step_impl(context):
+    # MS authentication
+    context.ms_token = partner_center_authentication(context)
+    context.get_items = get_invoice_line_items(context)
+
+@then('charge vendor summary value is correct')
+def step_impl(context):
+    subtotal_MS = 0
+    charge_vendor = 0
+    s3 = boto3.client('s3')
+    summary_file = "{}{}".format(context.full_local_billing_files_path, context.summary_file_name.split("/")[3]) 
+    for item in context.get_items.get("items"):
+        subtotal_MS += item.get("subtotal")
+
+    # Search for totalt chargeVendor value
+    with open(summary_file, 'r') as summary_csv:
+        reader = csv.DictReader(summary_csv)
+        for row in reader:
+            charge_vendor += float(row.get("chargeVendor"))
+
+    print("Charge vendor: {}".format(round(charge_vendor,2)))
+    print("Subtotal MS: {}".format(round(subtotal_MS,2)))
+
+    context.testcase.assertEquals(round(charge_vendor,2), round(subtotal_MS,2), msg="Charge is different. Obtained {} instead of {}".format(
+                                          round(charge_vendor,2), round(subtotal_MS,2)))
+
 
 @then('charge summary value is correct')
 def step_impl(context):
@@ -348,6 +518,15 @@ def step_impl(context):
                                           context.generate_billing_response.status_code, status_code))
 
 
+@then('the answer to the lambda generateBilling is NOK Internal error')
+def step_impl(context):
+    # Check response to generateBilling (if timeout give a warning)
+    status_code = 500
+    context.testcase.assertEquals(context.generate_billing_response.status_code, status_code,
+                                      msg="Status code invalid. Obtained {} instead of {}".format(
+                                          context.generate_billing_response.status_code, status_code))
+
+
 @then('charge value is correct')
 def step_impl(context):
     detail_file_name = "{}/{}".format(context.full_local_billing_files_path, context.detail_file_name.split("/")[3])
@@ -409,6 +588,44 @@ def step_impl(context):
 
 
 @then('the lastAWSInvoiceDate and BillingFileDate from DynamoDB is updated with the last billing info')
+def step_impl(context):
+    today = date.today()
+    first = today.replace(day=1)
+    last_month = first - timedelta(days=1)
+    second = last_month.replace(day=1)
+    last_two_month = second - timedelta(days=1)
+
+    if today.strftime("%m") == "1" and int(today.strftime("%d")) < 9:
+        year = last_two_month.strftime("%Y")
+    else:
+        year = last_month.strftime("%Y")
+    if int(today.strftime("%d")) < 9:
+        month = last_two_month.strftime("%m")
+        month_1 = last_month.strftime("%m")
+    else:
+        month = last_month.strftime("%m")
+        month_1 = today.strftime("%m")
+
+    dynamodb = boto3.resource('dynamodb')
+    table = dynamodb.Table(context.env_vars['dynamoDbName'])
+
+    response = table.get_item(
+        Key=context.env_vars['dynamoDBPrimaryKey']
+    )
+    print("lastAzureInvoiceDate {}".format(response["Item"]["lastAzureInvoiceDate"]))
+    print("lastAzureInvoiceDate {}".format(response["Item"]["billingFileDate"]))
+    item = response['Item']
+    last_azure_invoice_date = item['lastAzureInvoiceDate']
+    billing_file_date = item['billingFileDate']
+
+    print("Date: {}{}01".format(year, month))
+
+    context.testcase.assertTrue("{}{}01".format(year, month_1) in last_azure_invoice_date, msg=today.strftime(
+        "%Y%m") + "01 - Not found in dyanmoDB last_azure_invoice_date: " + last_azure_invoice_date)
+    context.testcase.assertIsNotNone(billing_file_date, msg="billingFileDate is empty")
+
+
+@then('the lastAWSInvoiceDate and BillingFileDate from DynamoDB is not updated')
 def step_impl(context):
     today = date.today()
     first = today.replace(day=1)

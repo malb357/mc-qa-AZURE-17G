@@ -9,7 +9,9 @@ Feature: GenerateBilling summary file generation
     And today summary file is downloaded
     And today detail file is downloaded
     And consumption file is downloaded
+    And ms invoice file is downloaded
     And charge summary value is correct
+    And charge vendor summary value is correct
     And the lastAWSInvoiceDate and BillingFileDate from DynamoDB is updated with the last billing info
 
   Scenario: Success - Remove optional items
