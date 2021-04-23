@@ -9,12 +9,12 @@ import time
 import csv
 from steps.commonAWS import get_today_detail_file_name_empty, get_today_summary_file_name, get_today_subsummary_file_name, get_today_subdetail_file_name, get_today_detail_file_name, get_today_client_file_name, get_consumption_file_name, get_today_summary_file_name_empty, get_today_detail_file_name_empty
 from steps.commonMS import partner_center_authentication, get_invoice_line_items
+from steps.commonAWS import get_today_summary_file_name, get_today_detail_file_name, get_today_client_file_name, get_consumption_file_name, contar_decimales
 import shutil
 from datetime import date, timedelta
 import os
 import gzip
 import csv
-
 
 @when('generateBilling is executed with boto')
 def step_impl(context):
@@ -23,6 +23,140 @@ def step_impl(context):
                                aws_region=context.env_vars['region'],
                                aws_service='execute-api')
     params = {'force': 'true', 'offset': '1', 'regenerateWithCorrections': 'true'}
+    context.generate_billing_response = requests.get(context.env_vars['generateBillingURL'], auth=auth, params=params, timeout=30)
+    # If timeout we have to wait until the lambda
+    status_code_gateway_timeout = 504
+    if context.generate_billing_response.status_code == status_code_gateway_timeout:
+        time.sleep(context.env_vars['generateBillingTimeoutSleep'])
+
+@when('generateBilling with force with value true is executed with boto')
+def step_impl(context):
+    # Execute the lambada with Boto and  
+    auth = BotoAWSRequestsAuth(aws_host=context.env_vars['awsApiHost'],
+                               aws_region=context.env_vars['region'],
+                               aws_service='execute-api')
+    params = {'force': 'true', 'regenerateWithCorrections': 'true'}
+    context.generate_billing_response = requests.get(context.env_vars['generateBillingURL'], auth=auth, params=params, timeout=30)
+    # If timeout we have to wait until the lambda
+    status_code_gateway_timeout = 504
+    if context.generate_billing_response.status_code == status_code_gateway_timeout:
+        time.sleep(context.env_vars['generateBillingTimeoutSleep'])
+
+@when('generateBilling with force with value false is executed with boto')
+def step_impl(context):
+    # Execute the lambada with Boto and  
+    auth = BotoAWSRequestsAuth(aws_host=context.env_vars['awsApiHost'],
+                               aws_region=context.env_vars['region'],
+                               aws_service='execute-api')
+    params = {'force': 'false', 'regenerateWithCorrections': 'true'}
+    context.generate_billing_response = requests.get(context.env_vars['generateBillingURL'], auth=auth, params=params, timeout=30)
+    # If timeout we have to wait until the lambda
+    status_code_gateway_timeout = 504
+    if context.generate_billing_response.status_code == status_code_gateway_timeout:
+        time.sleep(context.env_vars['generateBillingTimeoutSleep'])
+
+@when('generateBilling with "{offset_a}" is executed with boto')
+def step_impl(context,offset_a):
+    # Execute the lambada with Boto and  
+    auth = BotoAWSRequestsAuth(aws_host=context.env_vars['awsApiHost'],
+                               aws_region=context.env_vars['region'],
+                               aws_service='execute-api')
+    
+    params = {'force': 'true', 'offset': context.env_vars['offset_a'], 'regenerateWithCorrections': 'true'}
+    context.generate_billing_response = requests.get(context.env_vars['generateBillingURL'], auth=auth, params=params, timeout=30)
+    # If timeout we have to wait until the lambda
+    status_code_gateway_timeout = 504
+    if context.generate_billing_response.status_code == status_code_gateway_timeout:
+        time.sleep(context.env_vars['generateBillingTimeoutSleep'])
+
+@when('generateBilling with "{offset_b}" set is executed with boto')
+def step_impl(context,offset_b):
+    # Execute the lambada with Boto and  
+    auth = BotoAWSRequestsAuth(aws_host=context.env_vars['awsApiHost'],
+                               aws_region=context.env_vars['region'],
+                               aws_service='execute-api')
+    
+    params = {'force': 'true', 'offset': context.env_vars['offset_b'], 'regenerateWithCorrections': 'true'}
+    context.generate_billing_response = requests.get(context.env_vars['generateBillingURL'], auth=auth, params=params, timeout=30)
+    # If timeout we have to wait until the lambda
+    status_code_gateway_timeout = 504
+    if context.generate_billing_response.status_code == status_code_gateway_timeout:
+        time.sleep(context.env_vars['generateBillingTimeoutSleep'])
+
+@when('generateBilling with offset <0 is executed with boto')
+def step_impl(context):
+    # Execute the lambada with Boto and  
+    auth = BotoAWSRequestsAuth(aws_host=context.env_vars['awsApiHost'],
+                               aws_region=context.env_vars['region'],
+                               aws_service='execute-api')
+    
+    params = {'force': 'true', 'offset': context.env_vars['offset_menor'], 'regenerateWithCorrections': 'true'}
+    context.generate_billing_response = requests.get(context.env_vars['generateBillingURL'], auth=auth, params=params, timeout=30)
+    # If timeout we have to wait until the lambda
+    status_code_gateway_timeout = 504
+    if context.generate_billing_response.status_code == status_code_gateway_timeout:
+        time.sleep(context.env_vars['generateBillingTimeoutSleep'])
+
+@when('generateBilling with offset invalid is executed with boto')
+def step_impl(context):
+    # Execute the lambada with Boto and  
+    auth = BotoAWSRequestsAuth(aws_host=context.env_vars['awsApiHost'],
+                               aws_region=context.env_vars['region'],
+                               aws_service='execute-api')
+    
+    params = {'force': 'true', 'offset': 'asdf', 'regenerateWithCorrections': 'true'}
+    context.generate_billing_response = requests.get(context.env_vars['generateBillingURL'], auth=auth, params=params, timeout=30)
+    # If timeout we have to wait until the lambda
+    status_code_gateway_timeout = 504
+    if context.generate_billing_response.status_code == status_code_gateway_timeout:
+        time.sleep(context.env_vars['generateBillingTimeoutSleep'])
+
+@when('generateBilling with force with value exchangeRate = 0 is executed with boto')
+def step_impl(context):
+    # Execute the lambada with Boto and  
+    auth = BotoAWSRequestsAuth(aws_host=context.env_vars['awsApiHost'],
+                               aws_region=context.env_vars['region'],
+                               aws_service='execute-api')
+    params = {'force': 'true', 'exchangeRate': '0', 'regenerateWithCorrections': 'true'}
+    context.generate_billing_response = requests.get(context.env_vars['generateBillingURL'], auth=auth, params=params, timeout=30)
+    # If timeout we have to wait until the lambda
+    status_code_gateway_timeout = 504
+    if context.generate_billing_response.status_code == status_code_gateway_timeout:
+        time.sleep(context.env_vars['generateBillingTimeoutSleep'])
+
+@when('generateBilling with force with value exchangeRate > 0 is executed with boto')
+def step_impl(context):
+    # Execute the lambada with Boto and  
+    auth = BotoAWSRequestsAuth(aws_host=context.env_vars['awsApiHost'],
+                               aws_region=context.env_vars['region'],
+                               aws_service='execute-api')
+    params = {'force': 'true', 'exchangeRate': '3', 'regenerateWithCorrections': 'true'}
+    context.generate_billing_response = requests.get(context.env_vars['generateBillingURL'], auth=auth, params=params, timeout=30)
+    # If timeout we have to wait until the lambda
+    status_code_gateway_timeout = 504
+    if context.generate_billing_response.status_code == status_code_gateway_timeout:
+        time.sleep(context.env_vars['generateBillingTimeoutSleep'])
+
+@when('generateBilling with force with value exchangeRate < 0 is executed with boto')
+def step_impl(context):
+    # Execute the lambada with Boto and  
+    auth = BotoAWSRequestsAuth(aws_host=context.env_vars['awsApiHost'],
+                               aws_region=context.env_vars['region'],
+                               aws_service='execute-api')
+    params = {'force': 'true', 'exchangeRate': '-5', 'regenerateWithCorrections': 'true'}
+    context.generate_billing_response = requests.get(context.env_vars['generateBillingURL'], auth=auth, params=params, timeout=30)
+    # If timeout we have to wait until the lambda
+    status_code_gateway_timeout = 504
+    if context.generate_billing_response.status_code == status_code_gateway_timeout:
+        time.sleep(context.env_vars['generateBillingTimeoutSleep'])
+
+@when('generateBilling with force with invalid exchangeRate is executed with boto')
+def step_impl(context):
+    # Execute the lambada with Boto and  
+    auth = BotoAWSRequestsAuth(aws_host=context.env_vars['awsApiHost'],
+                               aws_region=context.env_vars['region'],
+                               aws_service='execute-api')
+    params = {'force': 'true', 'exchangeRate': 'INVALID', 'regenerateWithCorrections': 'true'}
     context.generate_billing_response = requests.get(context.env_vars['generateBillingURL'], auth=auth, params=params, timeout=30)
     # If timeout we have to wait until the lambda
     status_code_gateway_timeout = 504
@@ -505,6 +639,30 @@ def step_impl(context):
                                       msg="Status code invalid. Obtained {} instead of {}".format(
                                           context.generate_billing_response.status_code, status_code))
 
+@then('the answer to the lambda generateBilling is 400')
+def step_impl(context):
+    # Check response to generateBilling (if timeout give a warning)
+    status_code = 400
+    status_code_gateway_timeout = 504
+    if context.generate_billing_response.status_code == status_code_gateway_timeout:
+        logging.warning("ApiGateway Timeout- StatusCode: " + str(context.generate_billing_response.status_code))
+    else:
+        context.testcase.assertEquals(context.generate_billing_response.status_code, status_code,
+                                      msg="Status code invalid. Obtained {} instead of {}".format(
+                                          context.generate_billing_response.status_code, status_code))
+
+@then('the answer to the lambda generateBilling is 500')
+def step_impl(context):
+    # Check response to generateBilling (if timeout give a warning)
+    status_code = 500
+    status_code_gateway_timeout = 504
+    if context.generate_billing_response.status_code == status_code_gateway_timeout:
+        logging.warning("ApiGateway Timeout- StatusCode: " + str(context.generate_billing_response.status_code))
+    else:
+        context.testcase.assertEquals(context.generate_billing_response.status_code, status_code,
+                                      msg="Status code invalid. Obtained {} instead of {}".format(
+                                          context.generate_billing_response.status_code, status_code))
+
 @then('the answer to the lambda currentBillingCycle is OK')
 def step_impl(context):
     # Check response to generateBilling (if timeout give a warning)
@@ -606,7 +764,7 @@ def step_impl(context):
         month = last_month.strftime("%m")
         month_1 = today.strftime("%m")
 
-    dynamodb = boto3.resource('dynamodb')
+    dynamodb = boto3.resource('dynamodb', region_name='us-east-2')
     table = dynamodb.Table(context.env_vars['dynamoDbName'])
 
     response = table.get_item(
@@ -624,6 +782,7 @@ def step_impl(context):
         "%Y%m") + "01 - Not found in dyanmoDB last_azure_invoice_date: " + last_azure_invoice_date)
     context.testcase.assertIsNotNone(billing_file_date, msg="billingFileDate is empty")
 
+<<<<<<< Updated upstream
 
 @then('the lastAWSInvoiceDate and BillingFileDate from DynamoDB is not updated')
 def step_impl(context):
@@ -661,3 +820,50 @@ def step_impl(context):
     context.testcase.assertTrue("{}{}01".format(year, month_1) in last_azure_invoice_date, msg=today.strftime(
         "%Y%m") + "01 - Not found in dyanmoDB last_azure_invoice_date: " + last_azure_invoice_date)
     context.testcase.assertIsNotNone(billing_file_date, msg="billingFileDate is empty")
+=======
+@then('summary file fields have 2 decimals')
+def step_impl(context):
+    
+    s3 = boto3.client('s3')
+    summary_file = "{}{}".format(context.full_local_billing_files_path, context.summary_file_name.split("/")[3])
+        
+    #Revisamos por cada línea del fichero los campos que tienen cantidades
+    with open(summary_file, 'r') as summary_csv:
+        reader = csv.DictReader(summary_csv)
+        for row in reader:
+            #Revisión campo charge
+            number=row['charge']            
+            digitos_charge = contar_decimales(number)
+            if (digitos_charge!=2):
+                print("El accountId", row['accountIdCsb'], "tiene en el campo charge más de dos dígitos de precisión", row['charge'])
+                context.testcase.assertTrue(False)
+
+            #Revisión campo chargeVendor
+            number=row['chargeVendor']
+            digitos_chargeVendor = contar_decimales(number)
+            if (digitos_chargeVendor!=2):
+                print("El accountId", row['accountIdCsb'], "tiene en el campo chargeVendor más de dos dígitos de precisión", row['chargeVendor'])
+                context.testcase.assertTrue(False)
+
+            #Revisión campo chargeRef        
+            number=row['chargeRef']
+            digitos_chargeRef = contar_decimales(number)
+            if (digitos_chargeRef!=2):
+                print("El accountId", row['accountIdCsb'], "tiene en el campo chargeRef más de dos dígitos de precisión", row['chargeRef'])
+                context.testcase.assertTrue(False) 
+
+            #Revisión campo chargeVendorRef
+            number=row['chargeVendorRef']
+            digitos_chargeVendorRef = contar_decimales(number)
+            if (digitos_chargeVendorRef!=2):
+                print("El accountId", row['accountIdCsb'], "tiene en el campo chargeVendorRef más de dos dígitos de precisión", row['chargeVendorRef'])
+                context.testcase.assertTrue(False) 
+
+            #Revisión campo margin
+            number=row['margin']
+            digitos_margin = contar_decimales(number)
+            if (digitos_chargeVendorRef!=2):
+                print("El accountId", row['accountIdCsb'], "tiene en el campo margin más de dos dígitos de precisión", row['margin'])
+                context.testcase.assertTrue(False) 
+
+>>>>>>> Stashed changes

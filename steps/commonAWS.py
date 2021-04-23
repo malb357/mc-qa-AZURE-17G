@@ -238,6 +238,21 @@ def get_today_client_file_name(context):
     if not client_today_file_found:
         context.testcase.assertTrue(client_today_file_found, msg='Client billing files from today NOT FOUND')
 
+def contar_decimales(number):
+
+    number = str(number)
+    longitud = len(number)
+    indice = -1
+    salir = False
+
+    while salir==False:
+        indice = indice + 1 
+        if (number[indice]==".") or (longitud - 1 == indice):
+            salir = True
+            if longitud - 1 == indice:
+                indice = indice + 1
+
+    return (longitud - indice - 1)
 
 
 @then('The status code is "{status_code}"')

@@ -31,7 +31,16 @@ dev:
     OB: AR
     consumptionFileName: AR_azure_consumption
     generateBillingTimeoutSleep: 1
+    offset_a: 0
+    offset_b: 3
+    offset_menor: -1
+    newPriceFactor: 97
+    invalidPriceFactor: invalid
     LocalBillingFiles: /billingFiles/
+    # variables para restaurar valores en la tabla de configuración de DynamoDB
+    old_lang: ES
+    old_bucketName: bucket
+    old_priceFactor: 1
     # csvSummaryHeaders: ['ob', 'mpa', 'accountIdCsb', 'subscriptionIdCsb', 'accountId', 'accountName', 'currency', 'exchangeRate', 'priceFactor', 'rebateFactor', 'charge', 'chargeVendor', 'rebateVendor', 'invoiceDate', 'chargeRef', 'chargeVendorRef', 'margin', 'rebateVendorRef', 'currencyRef']
     csvSummaryHeaders: ['ob', 'accountIdCsb', 'subscriptionIdCsb', 'customerId', 'subscriptionId', 'customerName', 'domain', 'currency', 'priceFactor', 'priceFactorRI', 'priceFactorSW', 'priceFactorMP', 'charge', 'chargeVendor', 'invoiceDate', 'chargeRef', 'chargeVendorRef', 'margin', 'currencyRef', 'exchangeRate']
     csvSubSummaryHeaders: ['ob', 'accountIdCsb', 'subscriptionIdCsb', 'customerId', 'subscriptionId', 'customerName', 'domain', 'subsubscriptionId', 'subsubscriptionName', 'currency', 'priceFactor', 'priceFactorRI', 'priceFactorSW', 'priceFactorMP', 'charge', 'chargeVendor', 'invoiceDate', 'chargeRef', 'chargeVendorRef', 'margin', 'currencyRef', 'exchangeRate']
@@ -41,8 +50,8 @@ dev:
     csvCurrentBillingSummaryHeaders: ['ob', 'accountIdCsb', 'subscriptionIdCsb', 'customerId', 'subscriptionId','customerName', 'domain', 'charge', 'currency','chargeRef', 'chargeRef', 'exchangeRate']
     csvCurrentBillingDetaillHeaders: ['ob', 'accountIdCsb', 'subscriptionIdCsb', 'customerId', 'subscriptionId', 'service', 'resourceName', 'resourceId', 'quantity', 'unit', 'charge', 'currency', 'exchangeRate', 'chargeRef', 'currencyRef']
     csvCurrentBillingDetaillHeadersRefFalse: ['ob', 'accountIdCsb', 'subscriptionIdCsb', 'customerId', 'subscriptionId', 'service', 'resourceName', 'resourceId', 'quantity', 'unit', 'charge', 'currency']
-    adminAccessKey: 
-    adminSecretKey:
+    adminAccessKey: AKIAZEVGJQRQWQK7KMGS
+    adminSecretKey: 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
     region: us-east-2
     awsApiHost: gvqzlmv99i.execute-api.us-east-2.amazonaws.com
     csbAccessKey:
