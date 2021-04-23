@@ -50,8 +50,8 @@ dev:
     csvCurrentBillingSummaryHeaders: ['ob', 'accountIdCsb', 'subscriptionIdCsb', 'customerId', 'subscriptionId','customerName', 'domain', 'charge', 'currency','chargeRef', 'chargeRef', 'exchangeRate']
     csvCurrentBillingDetaillHeaders: ['ob', 'accountIdCsb', 'subscriptionIdCsb', 'customerId', 'subscriptionId', 'service', 'resourceName', 'resourceId', 'quantity', 'unit', 'charge', 'currency', 'exchangeRate', 'chargeRef', 'currencyRef']
     csvCurrentBillingDetaillHeadersRefFalse: ['ob', 'accountIdCsb', 'subscriptionIdCsb', 'customerId', 'subscriptionId', 'service', 'resourceName', 'resourceId', 'quantity', 'unit', 'charge', 'currency']
-    adminAccessKey: AKIAZEVGJQRQWQK7KMGS
-    adminSecretKey: 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
+    adminAccessKey:
+    adminSecretKey:
     region: us-east-2
     awsApiHost: gvqzlmv99i.execute-api.us-east-2.amazonaws.com
     csbAccessKey:
