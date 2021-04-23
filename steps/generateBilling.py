@@ -782,7 +782,6 @@ def step_impl(context):
         "%Y%m") + "01 - Not found in dyanmoDB last_azure_invoice_date: " + last_azure_invoice_date)
     context.testcase.assertIsNotNone(billing_file_date, msg="billingFileDate is empty")
 
-<<<<<<< Updated upstream
 
 @then('the lastAWSInvoiceDate and BillingFileDate from DynamoDB is not updated')
 def step_impl(context):
@@ -820,7 +819,7 @@ def step_impl(context):
     context.testcase.assertTrue("{}{}01".format(year, month_1) in last_azure_invoice_date, msg=today.strftime(
         "%Y%m") + "01 - Not found in dyanmoDB last_azure_invoice_date: " + last_azure_invoice_date)
     context.testcase.assertIsNotNone(billing_file_date, msg="billingFileDate is empty")
-=======
+
 @then('summary file fields have 2 decimals')
 def step_impl(context):
     
@@ -866,4 +865,3 @@ def step_impl(context):
                 print("El accountId", row['accountIdCsb'], "tiene en el campo margin más de dos dígitos de precisión", row['margin'])
                 context.testcase.assertTrue(False) 
 
->>>>>>> Stashed changes
