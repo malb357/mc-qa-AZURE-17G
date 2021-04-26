@@ -36,7 +36,9 @@ def before_all(context):
     print("env: {}".format(env))
     repo_env_vars = env_vars[env]
     print("repo_env_vars: {}".format(repo_env_vars))
-    context.env_vars = repo_env_vars.update(jenkins_env_vars)
+    evironment_var = repo_env_vars.update(jenkins_env_vars)
+    print("evironment_var: {}".format(evironment_var))
+    context.env_vars = evironment_var
     print("jenkins_env_vars: {}".format(jenkins_env_vars))
     print("context.env.vars: {}".format(context.env_vars))
     context.testcase = TestCase()
