@@ -33,7 +33,10 @@ def before_all(context):
         'consumptionFileName': os.getenv('consumptionFileName')
     }
     env = os.getenv('ENV', 'dev')
+    print("env: {}".format(env))
     repo_env_vars = env_vars[env]
+    print("repo_env_vars: {}".format(repo_env_vars))
+    print("envvars[env]: {}".format(env_vars[env]))
     context.env_vars = repo_env_vars.update(jenkins_env_vars)
     print("context.env.vars: {}".format(context.env_vars))
     context.testcase = TestCase()
