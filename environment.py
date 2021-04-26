@@ -30,7 +30,7 @@ def before_all(context):
         'prefixBillingSubSummaryFileName': os.getenv('prefixBillingSubSummaryFileName'),
         'prefixBillingSubDetailFileName': os.getenv('prefixBillingSubDetailFileName'),
         'OB': os.getenv('OB'),
-        'consumptionFileName': os.getenv('consumptionFileName'),
+        'consumptionFileName': os.getenv('consumptionFileName')
     }
     env = os.getenv('ENV', 'dev')
     repo_env_vars = env_vars[env]
