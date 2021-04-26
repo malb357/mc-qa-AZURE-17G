@@ -19,8 +19,22 @@ def before_all(context):
     """
     # toolium_before_all(context)
     env_vars = yaml.load(open('environments.yml').read(), Loader=yaml.FullLoader)
+    jenkins_env_vars = {
+        'dynamoDbName': os.getenv('dynamoDbName'),
+        'dynamoDBPrimaryKey': os.getenv('dynamoDBPrimaryKey'),
+        'generateBillingURL': os.getenv('generateBillingURL'),
+        'generateCurrentBillingURL': os.getenv('generateCurrentBillingURL'),
+        'billingBucketName': os.getenv('billingBucketName'),
+        'prefixBillingSummaryFileName': os.getenv('prefixBillingSummaryFileName'),
+        'prefixBillingDetailFileName': os.getenv('prefixBillingDetailFileName'),
+        'prefixBillingSubSummaryFileName': os.getenv('prefixBillingSubSummaryFileName'),
+        'prefixBillingSubDetailFileName': os.getenv('prefixBillingSubDetailFileName'),
+        'OB': os.getenv('OB'),
+        'consumptionFileName': os.getenv('consumptionFileName'),
+    }
     env = os.getenv('ENV', 'dev')
-    context.env_vars = env_vars[env]
+    repo_env_vars = env_vars[env]
+    context.env_vars = repo_env_vars.update(jenkins_env_vars)
     context.testcase = TestCase()
     context.full_local_billing_files_path = os.environ["WORKSPACE"] + context.env_vars['LocalBillingFiles']
 
