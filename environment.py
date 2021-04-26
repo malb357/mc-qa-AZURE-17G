@@ -36,7 +36,7 @@ def before_all(context):
     repo_env_vars = env_vars[env]
     context.env_vars = repo_env_vars.update(jenkins_env_vars)
     context.testcase = TestCase()
-    context.full_local_billing_files_path = os.environ["WORKSPACE"] + context.env_vars['LocalBillingFiles']
+    context.full_local_billing_files_path = os.getenv("WORKSPACE") + context.env_vars['LocalBillingFiles']
 
     # TBC --> Delete billing files from the current day --> summary, client and detail
 
