@@ -36,8 +36,8 @@ def before_all(context):
     print("env: {}".format(env))
     repo_env_vars = env_vars[env]
     print("repo_env_vars: {}".format(repo_env_vars))
-    print("envvars[env]: {}".format(env_vars[env]))
     context.env_vars = repo_env_vars.update(jenkins_env_vars)
+    print("jenkins_env_vars: {}".format(jenkins_env_vars))
     print("context.env.vars: {}".format(context.env_vars))
     context.testcase = TestCase()
     context.full_local_billing_files_path = os.getenv("WORKSPACE") + context.env_vars['LocalBillingFiles']
