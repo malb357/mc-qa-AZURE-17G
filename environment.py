@@ -30,13 +30,15 @@ def before_all(context):
         'prefixBillingSubSummaryFileName': os.getenv('prefixBillingSubSummaryFileName'),
         'prefixBillingSubDetailFileName': os.getenv('prefixBillingSubDetailFileName'),
         'OB': os.getenv('OB'),
-        'consumptionFileName': os.getenv('consumptionFileName')
+        'consumptionFileName': os.getenv('consumptionFileName'),
+        'awsApiHost': os.getenv('kl6e14ia2j.execute-api.us-east-2.amazonaws.com')
     }
     env = os.getenv('ENV', 'dev')
     # print("env: {}".format(env))
     repo_env_vars = env_vars[env]
     # print("repo_env_vars: {}".format(repo_env_vars))
-    repo_env_vars.update(jenkins_env_vars)
+    if jenkins_env_vars["generateBillingURL"] != None:
+        repo_env_vars.update(jenkins_env_vars)
     # print("evironment_var: {}".format(evironment_var))
     context.env_vars = repo_env_vars
     # print("jenkins_env_vars: {}".format(jenkins_env_vars))
