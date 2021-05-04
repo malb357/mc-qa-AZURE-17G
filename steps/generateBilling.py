@@ -9,6 +9,7 @@ import time
 import csv
 from steps.commonAWS import get_today_detail_file_name_empty, get_today_summary_file_name, get_today_subsummary_file_name, get_today_subdetail_file_name, get_today_detail_file_name, get_today_client_file_name, get_consumption_file_name, get_today_summary_file_name_empty, get_today_detail_file_name_empty
 from steps.commonMS import partner_center_authentication, get_invoice_line_items
+from steps.commonMSv2 import partner_center_authentication_cost_management, cost_management_query
 from steps.commonAWS import get_today_summary_file_name, get_today_detail_file_name, get_today_client_file_name, get_consumption_file_name, contar_decimales
 import shutil
 from datetime import date, timedelta
@@ -539,20 +540,22 @@ def step_impl(context):
     # print("{}/{}".format(context.full_local_billing_files_path, csv_file_name))
     shutil.move(csv_file_name, "{}/{}".format(context.full_local_billing_files_path, csv_file_name))
 
-@then('ms invoice file is downloaded')
+@then('ms data is downloaded')
 def step_impl(context):
     # MS authentication
-    context.ms_token = partner_center_authentication(context)
-    context.get_items = get_invoice_line_items(context)
+    context.access_token_pc = partner_center_authentication_cost_management(context)
+    context.get_items = cost_management_query(context)
 
 @then('charge vendor summary value is correct')
 def step_impl(context):
-    subtotal_MS = 0
+    cost_USD = 0
     charge_vendor = 0
     s3 = boto3.client('s3')
-    summary_file = "{}{}".format(context.full_local_billing_files_path, context.summary_file_name.split("/")[3]) 
-    for item in context.get_items.get("items"):
-        subtotal_MS += item.get("subtotal")
+    summary_file = "{}{}".format(context.full_local_billing_files_path, context.summary_file_name.split("/")[3])
+    print("Summary File: {}".format(summary_file))
+    # print(context.get_items) 
+    for item in context.get_items:
+        cost_USD += item[1]
 
     # Search for totalt chargeVendor value
     with open(summary_file, 'r') as summary_csv:
@@ -561,10 +564,10 @@ def step_impl(context):
             charge_vendor += float(row.get("chargeVendor"))
 
     print("Charge vendor: {}".format(round(charge_vendor,2)))
-    print("Subtotal MS: {}".format(round(subtotal_MS,2)))
+    print("Cost USD MS: {}".format(round(cost_USD,2)))
 
-    context.testcase.assertEquals(round(charge_vendor,2), round(subtotal_MS,2), msg="Charge is different. Obtained {} instead of {}".format(
-                                          round(charge_vendor,2), round(subtotal_MS,2)))
+    context.testcase.assertEquals(round(charge_vendor,2), round(cost_USD,2), msg="Charge is different. Obtained {} instead of {}".format(
+                                          round(charge_vendor,2), round(cost_USD,2)))
 
 
 @then('charge summary value is correct')

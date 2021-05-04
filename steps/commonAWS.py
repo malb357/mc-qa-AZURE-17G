@@ -14,6 +14,7 @@ def get_today_summary_file_name(context):
     # Check the S3 bucket has billing files from the current day
     s3 = boto3.resource('s3')
     bucket = s3.Bucket(context.env_vars['billingBucketName'])
+    print("El valor context.env_vars: {}".format(context.env_vars['billingBucketName']))
     summary_today_file_found = False
 
     today = date.today()
