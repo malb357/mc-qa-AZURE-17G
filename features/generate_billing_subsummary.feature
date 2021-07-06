@@ -1,6 +1,6 @@
 Feature: GenerateBilling subsummary file generation
 
-  Scenario: Success - Generate subsummary file
+  Scenario: MCAZURE-4707 Success - Generate subsummary file
     Given an AWS admin user
     And an aws credentials for s3
     And a OB with an AWS account

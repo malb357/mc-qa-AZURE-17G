@@ -1,6 +1,6 @@
 Feature: GenerateBilling subdetail file generation
 
-  Scenario: Success - Generate subdetail file
+  Scenario: MCAZURE-4709 Success - Generate subdetail file
     Given an AWS admin user
     And an aws credentials for s3
     And a OB with an AWS account
